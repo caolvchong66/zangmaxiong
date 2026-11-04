@@ -113,7 +113,6 @@ zangmaxiong/
 ├─ 04_上位机工具/            # bear_monitor.py：JTAG 读 DDR 帧与日志的 PC 端监视器
 ├─ 05_文档报告/              # 参赛报告 docx、系统使用说明、测试记录、答辩速查卡、截图
 ├─ 06_测试数据/              # 板上实测检测结果图
-├─ 99_旧版本备份_接入蜂鸣器前/  # 加蜂鸣器之前的 BOOT.bin / elf / bit / main.c 存档
 ├─ docs/assets/             # README 用图（banner、演示截图）
 └─ tools/publish-to-github.ps1  # 一键发布到 GitHub 的脚本
 ```
