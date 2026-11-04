@@ -127,6 +127,18 @@ function ConvertTo-Base64([string]$file) {
     [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($file))
 }
 
+# 本地计算 git blob sha（sha1("blob <len>\0" + 内容)），用于跳过未改动文件
+function Get-GitBlobSha([string]$file) {
+    $bytes = [System.IO.File]::ReadAllBytes($file)
+    $ms = New-Object System.IO.MemoryStream
+    $hdr = [System.Text.Encoding]::ASCII.GetBytes("blob $($bytes.Length)`0")
+    $ms.Write($hdr, 0, $hdr.Length)
+    $ms.Write($bytes, 0, $bytes.Length)
+    $sha = [System.Security.Cryptography.SHA1]::Create().ComputeHash($ms.ToArray())
+    $ms.Dispose()
+    return ([BitConverter]::ToString($sha)).Replace('-', '').ToLowerInvariant()
+}
+
 # ---------------------------------------------------------------- 1. 账号
 $who = Invoke-Api -Method GET -Url "$ApiBase/user"
 if ([string]::IsNullOrWhiteSpace($Owner)) { $Owner = $who.login }
@@ -182,12 +194,29 @@ if ($refInfo) {
 }
 
 # ---------------------------------------------------------------- 4. blobs
+# 远端已有文件的 path -> blob sha，用于只上传有改动的文件
+$remoteMap = @{}
+if ($baseTree) {
+    $rt = Invoke-Api -Method GET -Url "$repoUrl/git/trees/$baseTree`?recursive=1"
+    foreach ($e in $rt.tree) { if ($e.type -eq 'blob') { $remoteMap[$e.path] = $e.sha } }
+    Write-Host "远端已有 $($remoteMap.Count) 个文件，将只上传有改动/新增的。" -ForegroundColor DarkGray
+}
+
 $entries = New-Object System.Collections.ArrayList
 $i = 0
+$changed = 0
+$skipped = 0
 foreach ($f in $files) {
     $i++
     $pct = [int](100 * $i / $files.Count)
     Write-Progress -Activity "上传文件到 $Owner/$Repo" -Status "[$i/$($files.Count)] $($f.Rel)" -PercentComplete $pct
+    $localSha = Get-GitBlobSha $f.Full
+    if ($remoteMap.ContainsKey($f.Rel) -and $remoteMap[$f.Rel] -eq $localSha) {
+        $skipped++
+        continue
+    }
+
+    $changed++
     Write-Host ("  [{0,3}/{1}] {2}  ({3:N1} KB)" -f $i, $files.Count, $f.Rel, ($f.Length / 1KB)) -ForegroundColor DarkGray
 
     $blob = Invoke-Api -Method POST -Url "$repoUrl/git/blobs" -Body @{
@@ -202,6 +231,13 @@ foreach ($f in $files) {
     })
 }
 Write-Progress -Activity "上传文件到 $Owner/$Repo" -Completed
+
+if ($entries.Count -eq 0) {
+    Write-Host "没有需要上传的改动，仓库已是最新。" -ForegroundColor Green
+    Write-Host "仓库地址：https://github.com/$Owner/$Repo" -ForegroundColor Green
+    return
+}
+Write-Host "改动/新增 $changed 个，跳过未变 $skipped 个。" -ForegroundColor Cyan
 
 # ---------------------------------------------------------------- 5. tree
 Write-Host "生成目录树 ..." -ForegroundColor Cyan
