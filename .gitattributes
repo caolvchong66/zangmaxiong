@@ -23,4 +23,3 @@
 01_程序烧录/* linguist-vendored
 03_模型文件/*.bin linguist-vendored
 03_模型文件/*.onnx linguist-vendored
-99_旧版本备份_接入蜂鸣器前/* linguist-vendored
