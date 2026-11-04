@@ -120,7 +120,7 @@ zangmaxiong/
 
 ## 快速开始
 
-### 方式一：SD 卡启动（比赛现场推荐）
+### 方式一：SD 卡启动
 
 1. 把 [`01_程序烧录/BOOT.bin`](01_程序烧录/BOOT.bin) 拷到 **FAT32** SD 卡**根目录**；
 2. SD 卡插入开发板，启动模式拨码拨到 **SD**；
@@ -250,19 +250,7 @@ the_ROM_image:
 | [`05_文档报告/藏马熊识别预警装置_参赛报告.docx`](05_文档报告/藏马熊识别预警装置_参赛报告.docx) | 参赛报告全文 |
 | [`02_工程源码/编译说明.txt`](02_工程源码/编译说明.txt) | 编译步骤与源码结构 |
 
-## 关于本仓库
 
-本仓库由 U 盘原始资料整理而来（**只读复制，未改动任何源数据**），并按 GitHub 仓库习惯补充了 `README.md`、`.gitignore`、`docs/assets` 与发布脚本。
-
-需要把本目录发布到 GitHub 时，可用 [`tools/publish-to-github.ps1`](tools/publish-to-github.ps1)（走 `api.github.com`，无需安装 git）：
-
-```powershell
-# 先创建一个有 repo 权限的 Personal Access Token，然后：
-$env:GITHUB_TOKEN = "ghp_xxx"
-.\tools\publish-to-github.ps1 -Owner caolvchong66 -Repo zangmaxiong
-```
-
-脚本会打印最终仓库地址 `https://github.com/<owner>/<repo>`。
 
 ## 版权与使用
 
