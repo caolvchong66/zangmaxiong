@@ -1,0 +1,16 @@
+模型文件说明
+============
+
+ bear-int8.param / bear-int8.bin   NCNN 格式的 INT8 量化模型（由训练好的 YOLOv8n 导出）
+                                   param 为网络结构，bin 为量化权重（约 3.0 MB）
+ best.onnx                         PyTorch 导出的 ONNX 模型（FP32，输入 1×3×320×320，
+                                   输出 1×5×2100，单类，DFL reg_max=16）
+ weights.bin                       本装置实际部署的权重：ONNX FP32 权重经"逐输出通道
+                                   对称 INT8 量化"后的紧凑格式（int8 权重 + fp32 scale + fp32 bias）
+ windex.h                          与 weights.bin 对应的层索引表（名称/偏移/尺寸），由 convert.py 生成
+
+ 输入预处理：等比 letterbox 到 320×320，灰边 114，RGB，归一化 /255
+ 输出解析：5×2100（x, y, w, h, class_prob），阈值 0.35 + IoU 0.45 NMS
+
+ 重新生成 weights.bin：
+   python convert.py      （需 onnx / numpy，路径在脚本顶部修改）

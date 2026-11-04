@@ -1,0 +1,30 @@
+# ---- Windows / 编辑器 ----
+Thumbs.db
+desktop.ini
+.DS_Store
+*~
+*.swp
+
+# ---- Xilinx / Vitis 生成物（源码目录一般不会出现，防止误提交）----
+.Xil/
+*.jou
+*.log
+*.wdb
+*.wcfg
+*.str
+.vitis/
+.metadata/
+RemoteSystemsTempFiles/
+.cproject
+.project
+
+# ---- 编译中间件 ----
+*.o
+*.d
+*.su
+*.obj
+*.bak
+
+# ---- 临时文件 ----
+*.tmp
+*.zip

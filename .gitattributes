@@ -1,1 +1,26 @@
-# placeholder
+# 统一换行，二进制文件不做任何转换
+* text=auto eol=lf
+
+*.bin    binary
+*.bit    binary
+*.elf    binary
+*.onnx   binary
+*.param  binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.docx   binary
+*.zip    binary
+
+*.md     text eol=lf
+*.txt    text eol=lf
+*.c      text eol=lf
+*.h      text eol=lf
+*.tcl    text eol=lf
+*.ps1    text eol=crlf
+
+# 语言统计：这些是产出的二进制/文档，不算源码
+01_程序烧录/* linguist-vendored
+03_模型文件/*.bin linguist-vendored
+03_模型文件/*.onnx linguist-vendored
+99_旧版本备份_接入蜂鸣器前/* linguist-vendored

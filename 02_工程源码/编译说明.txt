@@ -1,0 +1,37 @@
+编译说明
+========
+
+ 环境：Vitis 2020.2（含 Vivado 2020.2），Windows。
+ 目标：standalone（裸机），ps7_cortexa9_0。
+
+ 1) 新建平台（若已有 cam_plat 可跳过）
+    xsct platform\mkplat.tcl
+    作用：由 system_wrapper.xsa 生成平台 cam_plat（PS7 + VDMA + VTC + clk_wiz + GPIO）。
+
+ 2) 新建应用并加入源码
+    xsct platform\build2.tcl
+    或在 Vitis GUI 中：File → New → Application Project，选择 cam_plat，
+    模板 Empty Application(C)，把 src 下所有文件加入。
+
+ 3) 关键编译选项（务必设置，否则推理会慢 5 倍以上）
+    - 优化等级：-O3
+    - 浮点/NEON：-mfpu=neon -mfloat-abi=hard
+    - 链接库：-lm
+
+ 4) 生成 BOOT.bin
+    bootgen -image boot.bif -arch zynq -o BOOT.bin -w on
+    boot.bif 内容：
+      the_ROM_image:
+      {
+        [bootloader]fsbl.elf
+        bear.bit
+        bear_app.elf
+      }
+
+ 源码结构：
+   src/main.c          主流程：初始化、采集、预处理、推理、NMS、画框、预警
+   src/bearnet.c/h     自研 INT8 推理引擎（Conv/SiLU/C2f/SPPF/DFL/NMS，NEON）
+   src/weights.c       模型权重数组（3.0 MB，编译进 ELF）
+   src/windex.h        层索引表
+   src/jlog.c/h        共享内存日志（可通过 JTAG 读取）
+   src/display_ctrl、vdma_api、clk_wiz、emio_sccb_cfg、ov5640  驱动
